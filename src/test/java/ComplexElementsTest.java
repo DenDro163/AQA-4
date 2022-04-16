@@ -3,6 +3,7 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selenide.*;
@@ -15,6 +16,8 @@ public class ComplexElementsTest {
     private int dayRange = 7;// Дата встречи не ранее этого количества дней
     private LocalDate currentDate = LocalDate.now();// Дата на сегодня
     LocalDate deliveryDate = LocalDate.now().plusDays(dayRange);// Определяем дату на сегодня, добавляем 7 дней
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+    String formatDateNew = deliveryDate.format(formatter);
 
 
     @BeforeEach
@@ -32,6 +35,10 @@ public class ComplexElementsTest {
         $$("td.calendar__day").find(text(deliveryDate.format(ofPattern("d")))).click();
     }
 
+    public String generateDate(int dayRange) {//Использую для вывода даты в ассерт в нужном формате
+        return currentDate.plusDays(dayRange).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+    }
+
 
     // Ввод 2-х букв в поле город и выбор нужного из выпадающего списка.
     @Test
@@ -43,6 +50,7 @@ public class ComplexElementsTest {
         $("[data-test-id=phone] input").setValue("+79370400780");
         $("[data-test-id=agreement]").click();
         $(".button__text").click();
-        $(".notification__title").shouldBe(visible, Duration.ofSeconds(15));
+        $("[data-test-id=notification]").shouldBe(visible, Duration.ofSeconds(15)).shouldHave(exactText("Успешно! Встреча успешно забронирована на " + generateDate(7)));
     }
+
 }
